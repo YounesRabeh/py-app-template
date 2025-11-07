@@ -1,4 +1,3 @@
-# document_mapper.spec
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT
@@ -75,7 +74,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='document-mapper',
+    name='app-template',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -92,5 +91,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name='document-mapper',
+    name='app-template',
 )

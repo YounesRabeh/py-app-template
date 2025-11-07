@@ -51,4 +51,4 @@ class MainWindow(QMainWindow):
     def goto_stage(self, index: int):
         """Switch to a specific stage (1-based index)."""
         self.stage_manager.setCurrentIndex(index - 1)
-        Logger.log(f"Switched to Stage {index}", LogLevel.DEBUG)
+        Logger.debug(f"Switched to Stage {index}")

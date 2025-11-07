@@ -1,3 +1,4 @@
+import inspect
 import os
 import sys
 import platform
@@ -90,7 +91,7 @@ class Logger:
     @classmethod
     def _write_file_header(cls):
         """Writes an informative header at the top of the log file."""
-        app_name = os.getenv("PERSISTENCE_LOGGING_TARGET_NAME", "Unnamed Application")
+        app_name = os.getenv("PERSISTENCE_LOGGING_TARGET_NAME", "<Unnamed Application>")
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         header_lines = [
@@ -147,18 +148,103 @@ class Logger:
                     f.write(plain_text + "\n")
             except Exception as e:
                 if cls.CONSOLE_OUTPUT_ENABLED:
-                    print(f"[LoggerError] Failed to write to log file: {e}")
+                    print(f"!!! - LoggerError: Failed to write to log file: {e}")
 
     # ---------------------------
     # Convenience Shortcuts
     # ---------------------------
+
     @classmethod
-    def debug(cls, msg: str): cls.log(msg, LogLevel.DEBUG)
+    def _format_message(cls, msg: str, tag=None) -> str:
+        import inspect
+
+        if tag is None:
+            # Get caller info two frames up
+            frame = inspect.currentframe().f_back.f_back
+            caller_self = frame.f_locals.get('self')
+            caller_cls = frame.f_locals.get('cls')
+            func_name = frame.f_code.co_name  # function name
+
+            if caller_self and hasattr(caller_self, '__class__'):
+                tag = caller_self.__class__.__name__
+            elif caller_cls and hasattr(caller_cls, '__name__'):
+                tag = caller_cls.__name__
+            elif func_name and func_name != "<module>":
+                tag = func_name
+            else:
+                module = inspect.getmodule(frame)
+                tag = getattr(module, '__name__', '?').split('.')[-1]
+
+            # Clean up weird or useless tags
+            if tag in ("str", "builtins", "__main__"):
+                tag = "?"
+        elif not isinstance(tag, str):
+            tag = str(tag)
+
+        return f"[{tag}] {msg}"
+
     @classmethod
-    def info(cls, msg: str): cls.log(msg, LogLevel.INFO)
+    def debug(cls, msg: str, tag=None):
+        """
+        Log a debug-level message.
+
+        Args:
+            msg (str): The message to log.
+            tag (str, optional): Custom tag to prefix the log message.
+                If not provided, the tag defaults to the caller's class name
+                or module name.
+        """
+        cls.log(cls._format_message(msg, tag), LogLevel.DEBUG)
+
     @classmethod
-    def warning(cls, msg: str): cls.log(msg, LogLevel.WARNING)
+    def info(cls, msg: str, tag=None):
+        """
+        Log an informational message.
+
+        Args:
+            msg (str): The message to log.
+            tag (str, optional): Custom tag to prefix the log message.
+                If not provided, the tag defaults to the caller's class name
+                or module name.
+        """
+        cls.log(cls._format_message(msg, tag), LogLevel.INFO)
+
     @classmethod
-    def error(cls, msg: str): cls.log(msg, LogLevel.ERROR)
+    def warning(cls, msg: str, tag=None):
+        """
+        Log a warning message.
+
+        Args:
+            msg (str): The message to log.
+            tag (str, optional): Custom tag to prefix the log message.
+                If not provided, the tag defaults to the caller's class name
+                or module name.
+        """
+        cls.log(cls._format_message(msg, tag), LogLevel.WARNING)
+
     @classmethod
-    def critical(cls, msg: str): cls.log(msg, LogLevel.CRITICAL)
+    def error(cls, msg: str, tag=None):
+        """
+        Log an error message.
+
+        Args:
+            msg (str): The message to log.
+            tag (str, optional): Custom tag to prefix the log message.
+                If not provided, the tag defaults to the caller's class name
+                or module name.
+        """
+        cls.log(cls._format_message(msg, tag), LogLevel.ERROR)
+
+    @classmethod
+    def critical(cls, msg: str, tag=None):
+        """
+        Log a critical (highest-severity) message.
+
+        Args:
+            msg (str): The message to log.
+            tag (str, optional): Custom tag to prefix the log message.
+                If not provided, the tag defaults to the caller's class name
+                or module name.
+        """
+        cls.log(cls._format_message(msg, tag), LogLevel.CRITICAL)
+
