@@ -17,9 +17,29 @@ from core.util.validator import ConfigValidator
 
 
 class EnvironmentSetup:
-    """Load and merge config.toml and .env (only in dev mode)."""
+    """
+       Handles environment setup by loading configuration from both a TOML file and,
+       optionally, a .env file (in development mode). Also configures logging.
+
+       **Features:**
+
+       - Determines project root (works in both PyInstaller bundle and dev mode)
+       - Loads and flattens TOML configuration
+       - Loads .env variables in dev mode
+       - Auto-casts configuration values using ConfigValidator
+       - Merges TOML and .env into a single flat dictionary
+       - Configures logging based on environment and persistence settings
+
+       """
 
     def __init__(self, env_path: str = ".env", toml_path: str = "config.toml"):
+        """
+        Initialize the environment setup.
+
+        Args:
+            env_path (str): Relative path to the .env file (default: ".env").
+            toml_path (str): Relative path to the config.toml file (default: "config.toml").
+        """
         self.validator = ConfigValidator()
 
         # Determine project root (works in both PyInstaller & dev)
@@ -61,13 +81,29 @@ class EnvironmentSetup:
             Logger.configure_from_env(self.project_root)
 
     def _load_toml(self) -> dict[str, Any] | None | Any:
+        """
+        Load TOML configuration file.
+
+        Returns:
+            dict[str, Any] | None: Parsed TOML data if file exists, else None.
+        """
         if not self.toml_path.exists():
             return None
         with open(self.toml_path, "rb") as f:
             return tomllib.load(f)
 
     def _auto_cast(self, key: str, value: str):
-        """Validate and cast types using ConfigValidator."""
+        """
+        Automatically cast and validate environment variable values
+        using ConfigValidator.
+
+        Args:
+            key (str): Environment variable key.
+            value (str): Environment variable value.
+
+        Returns:
+            Any: Auto-cast and validated value.
+        """
         v = self.validator
 
         if key == "LOG_LEVEL":
@@ -93,7 +129,12 @@ class EnvironmentSetup:
         return v.ensure_string(value, "", key)
 
     def load(self) -> dict:
-        """Merge TOML and (optionally) .env into a flat dict."""
+        """
+        Merge TOML and optionally .env configuration into a flat dictionary.
+
+        Returns:
+            dict: Flat configuration dictionary with auto-cast values.
+        """
         config = {}
 
         if self.toml_data is None:
