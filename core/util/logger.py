@@ -116,7 +116,7 @@ class Logger:
                 f.write("\n".join(header_lines) + "\n")
         except Exception as e:
             if cls.CONSOLE_OUTPUT_ENABLED:
-                Logger.log(f"[LoggerError] Failed to write log file header: {e}", LogLevel.ERROR)
+                Logger.warning(f"[LoggerError] Failed to write log file header: {e}")
 
     # ---------------------------
     # Core Logging
@@ -148,6 +148,7 @@ class Logger:
                     f.write(plain_text + "\n")
             except Exception as e:
                 if cls.CONSOLE_OUTPUT_ENABLED:
+                    # `print` is used here because logging failed
                     print(f"!!! - LoggerError: Failed to write to log file: {e}")
 
     # ---------------------------
