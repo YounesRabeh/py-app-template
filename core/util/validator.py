@@ -5,11 +5,28 @@ from core.enums.app_themes import AppTheme
 
 
 class ConfigValidator:
-    """Validation utilities for configuration values"""
+    """
+    Validation utilities for configuration values
+    Provides static methods to validate and convert configuration values
+
+    """
 
     @staticmethod
     def ensure_positive_int(value: Any, default: int, field_name: str = "value") -> int:
-        """Ensure value is a positive integer"""
+        """
+        Ensure value is a positive integer.
+
+        Args:
+            value: The value to validate and convert
+            default: Default value to use if validation fails
+            field_name: Name of the field for error messages
+
+        Returns:
+            Positive integer value
+
+        Raises:
+            ValueError: If value cannot be converted to positive integer
+        """
         try:
             int_value = int(value)
             if int_value > 0:
@@ -21,7 +38,20 @@ class ConfigValidator:
 
     @staticmethod
     def ensure_boolean(value: Any, default: bool, field_name: str = "value") -> bool:
-        """Ensure value is a boolean"""
+        """
+        Ensure value is a boolean.
+
+        Args:
+            value: The value to validate and convert
+            default: Default value to use if validation fails
+            field_name: Name of the field for error messages
+
+        Returns:
+            Boolean value
+
+        Raises:
+            ValueError: If value cannot be converted to boolean
+        """
         if isinstance(value, bool):
             return value
         if isinstance(value, str):
@@ -33,14 +63,35 @@ class ConfigValidator:
 
     @staticmethod
     def ensure_string(value: Any, default: str, field_name: str = "value") -> str:
-        """Ensure value is a string"""
+        """
+        Ensure value is a string.
+
+        Args:
+            value: The value to validate and convert
+            default: Default value to use if validation fails
+            field_name: Name of the field for error messages
+
+        Returns:
+            String value
+        """
         if value is None:
             return default
         return str(value)
 
     @staticmethod
     def parse_log_level(level: str) -> LogLevel:
-        """Parse log level string to enum"""
+        """
+        Parse log level string to enum.
+
+        Args:
+            level: Log level string (e.g., 'DEBUG', 'INFO', 'WARNING', 'ERROR')
+
+        Returns:
+            LogLevel enum value
+
+        Raises:
+            ValueError: If level is not a valid LogLevel
+        """
         try:
             return LogLevel(level.upper())
         except ValueError:
@@ -48,7 +99,18 @@ class ConfigValidator:
 
     @staticmethod
     def parse_theme_mode(mode: str) -> AppTheme:
-        """Parse theme mode string to enum"""
+        """
+        Parse theme mode string to enum.
+
+        Args:
+            mode: Theme mode string (e.g., 'DARK', 'LIGHT', 'AUTO')
+
+        Returns:
+            AppTheme enum value
+
+        Raises:
+            ValueError: If mode is not a valid AppTheme
+        """
         try:
             return AppTheme(mode.upper())
         except ValueError:
@@ -56,7 +118,19 @@ class ConfigValidator:
 
     @staticmethod
     def validate_file_path(path: str, must_exist: bool = False) -> str:
-        """Validate file path"""
+        """
+        Validate file path.
+
+        Args:
+            path: File path to validate
+            must_exist: If True, raises error if file doesn't exist
+
+        Returns:
+            Validated file path as string
+
+        Raises:
+            ValueError: If path is invalid or file doesn't exist when required
+        """
         path_obj = Path(path)
         if must_exist and not path_obj.exists():
             raise ValueError(f"File not found: {path}")
@@ -64,7 +138,19 @@ class ConfigValidator:
 
     @staticmethod
     def validate_directory_path(path: str, create_if_missing: bool = False) -> str:
-        """Validate directory path"""
+        """
+        Validate directory path.
+
+        Args:
+            path: Directory path to validate
+            create_if_missing: If True, creates directory if it doesn't exist
+
+        Returns:
+            Validated directory path as string
+
+        Raises:
+            ValueError: If path is invalid or cannot create directory
+        """
         path_obj = Path(path)
         if create_if_missing and not path_obj.exists():
             path_obj.mkdir(parents=True, exist_ok=True)

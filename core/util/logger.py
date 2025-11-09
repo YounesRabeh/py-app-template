@@ -12,6 +12,9 @@ class Logger:
     """
     Custom logger with colored console output and optional file logging.
     Automatically configured from environment variables.
+    Usage:
+        - Call ``Logger.configure_from_env()`` at application startup.
+        - Use ``debug()``, ``info()``, ``warning()``, ``error()``, ``critical()`` to log messages.
     """
     log_file_name: str = "__app.log"
 
