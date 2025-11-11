@@ -5,62 +5,61 @@ from core.util.logger import Logger
 
 class ResourceLoader:
     """
-    Centralized loader for application resources.
-    Uses the [resources] section from the configuration.
+    Static centralized loader for application resources.
+    Reads paths from the [resources] section of the config.
     """
 
-    def __init__(self):
-        cfg = Config.get().get("resources", {})
+    # Initialize resource paths once
+    _cfg = Config.get().get("resources", {})
 
-        # Base resource folder
-        self.base = cfg.get("base", "resources")
-        self.qss = cfg.get("qss", os.path.join(self.base, "qss"))
-        self.icons = cfg.get("icons", os.path.join(self.base, "icons"))
-        self.images = cfg.get("images", os.path.join(self.base, "images"))
-        self.fonts = cfg.get("fonts", os.path.join(self.base, "fonts"))
-        self.data = cfg.get("data", os.path.join(self.base, "data"))
-        self.temp = cfg.get("temp", os.path.join(self.base, "temp"))
+    base = _cfg.get("base", "resources")
+    qss = _cfg.get("qss", os.path.join(base, "qss"))
+    icons = _cfg.get("icons", os.path.join(base, "icons"))
+    images = _cfg.get("images", os.path.join(base, "images"))
+    fonts = _cfg.get("fonts", os.path.join(base, "fonts"))
+    data = _cfg.get("data", os.path.join(base, "data"))
+    temp = _cfg.get("temp", os.path.join(base, "temp"))
 
-        # Ensure temp folder exists
-        if not os.path.exists(self.temp):
-            os.makedirs(self.temp, exist_ok=True)
-            Logger.debug(f"Created temp folder: {self.temp}")
+    # Ensure temp folder exists
+    if not os.path.exists(temp):
+        os.makedirs(temp, exist_ok=True)
+        Logger.debug(f"Created temp folder: {temp}")
 
-    def get_qss(self, filename: str) -> str:
-        """Return full path to a QSS file"""
-        path = os.path.join(self.qss, filename)
+    @staticmethod
+    def get_qss(filename: str) -> str:
+        path = os.path.join(ResourceLoader.qss, filename)
         if not os.path.exists(path):
             Logger.error(f"QSS file not found: {path}")
         return path
 
-    def get_icon(self, filename: str) -> str:
-        """Return full path to an icon file"""
-        path = os.path.join(self.icons, filename)
+    @staticmethod
+    def get_icon(filename: str) -> str:
+        path = os.path.join(ResourceLoader.icons, filename)
         if not os.path.exists(path):
             Logger.error(f"Icon file not found: {path}")
         return path
 
-    def get_image(self, filename: str) -> str:
-        """Return full path to an image file"""
-        path = os.path.join(self.images, filename)
+    @staticmethod
+    def get_image(filename: str) -> str:
+        path = os.path.join(ResourceLoader.images, filename)
         if not os.path.exists(path):
             Logger.error(f"Image file not found: {path}")
         return path
 
-    def get_font(self, filename: str) -> str:
-        """Return full path to a font file"""
-        path = os.path.join(self.fonts, filename)
+    @staticmethod
+    def get_font(filename: str) -> str:
+        path = os.path.join(ResourceLoader.fonts, filename)
         if not os.path.exists(path):
             Logger.error(f"Font file not found: {path}")
         return path
 
-    def get_data(self, filename: str) -> str:
-        """Return full path to a data file"""
-        path = os.path.join(self.data, filename)
+    @staticmethod
+    def get_data(filename: str) -> str:
+        path = os.path.join(ResourceLoader.data, filename)
         if not os.path.exists(path):
             Logger.error(f"Data file not found: {path}")
         return path
 
-    def get_temp(self, filename: str) -> str:
-        """Return full path to a temporary file"""
-        return os.path.join(self.temp, filename)
+    @staticmethod
+    def get_temp(filename: str) -> str:
+        return os.path.join(ResourceLoader.temp, filename)
