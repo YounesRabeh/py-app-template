@@ -1,0 +1,24 @@
+/* --- Button Theme --- */
+QPushButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    min-width: 100px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+}
+
+QPushButton:hover {
+    background-color: #0056b3;
+}
+
+QPushButton:pressed {
+    background-color: #004085;
+}
+
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}

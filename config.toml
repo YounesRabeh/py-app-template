@@ -6,10 +6,10 @@ author = "Younes Rabeh"
 organization = "YOUNIDEV"
 domain = "younidev.com"
 
-[logging]
+[logging] # Enable or disable logging persistence
 persistence_logging = true
 
-[window]
+[window] # Main window configuration
 width = 800
 height = 500
 min_width = 400
@@ -17,7 +17,7 @@ min_height = 300
 title = "<Application Title>"
 theme_mode = "AUTO"
 
-[resources]
+[resources] # Resource directories(don't change)
 base = "resources"
 qss = "resources/qss"
 icons = "resources/icons"
