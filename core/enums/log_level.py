@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class LogLevel(Enum):
     """
     Logging levels for application logging configuration.

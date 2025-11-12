@@ -10,8 +10,6 @@ from core.enums.app_themes import AppTheme
 from core.util.logger import Logger
 
 
-
-
 def _check_system_theme_change():
     """Check if system theme has changed and update if in AUTO mode."""
     if ThemeManager.current_theme != AppTheme.AUTO:

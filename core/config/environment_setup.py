@@ -4,9 +4,7 @@ from pathlib import Path
 from typing import Any
 from dotenv import load_dotenv
 
-from core.enums.log_level import LogLevel
 from core.util.logger import Logger
-from core.util.resources import Resources
 
 # TOML: built-in in Python 3.11+, fallback to tomli for older versions
 try:

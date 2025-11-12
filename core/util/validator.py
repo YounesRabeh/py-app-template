@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 from core.enums.log_level import LogLevel
 from core.enums.app_themes import AppTheme
 
