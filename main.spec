@@ -90,7 +90,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='app-template',
+    name='<Application-Name>',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -107,5 +107,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name='app-template',
+    name='<Application-Name>',
 )

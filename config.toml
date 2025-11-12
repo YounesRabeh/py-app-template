@@ -1,7 +1,7 @@
 [app]
-name = "App Name"
+name = "<Application-Name>"
 version = "1.0"
-description = "A Template application."
+description = "<Application Description>"
 author = "Younes Rabeh"
 organization = "YOUNIDEV"
 domain = "younidev.com"
