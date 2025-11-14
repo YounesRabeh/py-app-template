@@ -5,5 +5,6 @@ class Stage3(BaseStage):
     def __init__(self, config: dict):
         super().__init__(config, "🔵 Stage 3: Done")
 
+        # Add Back button (left-aligned)
         back_btn = UIFactory.create_button("← Back to Stage 2", self.prev_stage.emit)
         self.main_layout.addWidget(back_btn)

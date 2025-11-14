@@ -6,8 +6,7 @@ class MenuBar:
     @staticmethod
     def default(stage):
         """
-        Returns:
-             a default menu structure compatible with UIFactory.create_menu_bar.
+        :returns: a default menu structure compatible with UIFactory.create_menu_bar.
         `stage` is the QWidget (e.g. BaseStage subclass) that defines menu handlers.
         """
         return {
