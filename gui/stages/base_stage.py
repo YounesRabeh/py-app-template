@@ -59,9 +59,8 @@ class BaseStage(QWidget):
         """
         Initialize the base stage.
 
-        Args:
-            config: Application configuration dictionary
-            title: Stage title displayed at the top
+        :param config: Application configuration dictionary
+        :param title: Stage title displayed at the top
         """
         super().__init__()
         self.config = config
@@ -96,9 +95,8 @@ class BaseStage(QWidget):
         """
         Adds navigation buttons to the bottom of the stage.
 
-        Args:
-            back_text: Text for the back button (None hides the button)
-            next_text: Text for the next button (None hides the button)
+        :param back_text: Text for the back button (None hides the button)
+        :param next_text: Text for the next button (None hides the button)
         """
         # Back button (left aligned)
         if back_text:

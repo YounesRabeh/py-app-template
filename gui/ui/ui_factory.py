@@ -19,14 +19,12 @@ class UIFactory:
         """
         Creates a styled QLabel with optional alignment, tooltip, and custom styling.
 
-        Args:
-            text (str): The text to display on the label
-            align (Qt.AlignmentFlag): Text alignment. Defaults to Qt.AlignCenter
-            tooltip (str, optional): Tooltip text to show on hover
-            stylesheet (str, optional): Custom CSS stylesheet for the label
+        :param text: The text to display on the label
+        :param align: Text alignment. Defaults to Qt.AlignCenter
+        :param tooltip: Tooltip text to show on hover
+        :param stylesheet: Custom CSS stylesheet for the label
 
-        Returns:
-            QLabel: Configured label widget
+        :returns:QLabel: Configured label widget
         """
         label = QLabel(text)
         label.setAlignment(align)
@@ -46,16 +44,14 @@ class UIFactory:
         """
         Creates a styled QPushButton with consistent sizing and optional styling.
 
-        Args:
-            text (str): Button display text
-            on_click (callable, optional): Callback function for click events
-            tooltip (str, optional): Tooltip text to show on hover
-            min_width (int): Minimum button width in pixels. Defaults to 120
-            enabled (bool): Whether the button is initially enabled. Defaults to True
-            stylesheet (str, optional): Custom CSS stylesheet for the button
+        :param text: Button display text
+        :param on_click Callback function for click events
+        :param tooltip: Tooltip text to show on hover
+        :param min_width: Minimum button width in pixels. Defaults to 120
+        :param enabled: Whether the button is initially enabled. Defaults to True
+        :param stylesheet: Custom CSS stylesheet for the button
 
-        Returns:
-            QPushButton: Configured button widget
+        :returns:Configured button widget
         """
         btn = QPushButton(text)
 
@@ -87,11 +83,8 @@ class UIFactory:
                 - None for separators
             parent (QWidget): Parent widget for the menu bar
 
-        Returns:
-            QMenuBar: Fully configured menu bar
-
-        Raises:
-            ValueError: If menu structure format is invalid
+        :returns: Fully configured menu bar
+        :raises ValueError: If menu structure format is invalid
         """
         if not menu_structure:
             raise ValueError("Menu structure cannot be empty")
@@ -148,14 +141,12 @@ class UIFactory:
         """
         Creates a widget area that supports drag and drop file operations.
 
-        Args:
-            width (int): Width of the drag-drop area
-            height (int): Height of the drag-drop area
-            allowed_extensions (list, optional): List of allowed file extensions (e.g. ['.txt', '.pdf'])
-            on_files_selected (callable, optional): Callback function called with list of file paths
+        :param width: Width of the drag-drop area
+        :param height: Height of the drag-drop area
+        :param allowed_extensions: List of allowed file extensions (e.g. ['.txt', '.pdf'])
+        :param on_files_selected Callback function called with list of file paths
 
-        Returns:
-            QWidget: Configured drag and drop area widget
+        :returns: Configured drag and drop area widget
 
         Note:
             This is a stub implementation. Actual drag-drop functionality needs to be implemented

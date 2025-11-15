@@ -131,8 +131,7 @@ class EnvironmentSetup:
         """
         Merge TOML and optionally .env configuration into a flat dictionary.
 
-        Returns:
-            dict: Flat configuration dictionary with auto-cast values.
+        :returns: Flat configuration dictionary with auto-cast values as a dict
         """
         config = {}
 
