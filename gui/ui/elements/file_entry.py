@@ -29,6 +29,7 @@ class FileEntry(QWidget):
         self.file_exists = os.path.exists(file_path)
         if self.show_error_if_missing and not self.file_exists:
             self.file_name = "File not found !"
+            Logger.error(f"File not found for path: '{self.file_path}'")
         else:
             self.file_name = os.path.basename(file_path)
 
