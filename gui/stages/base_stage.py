@@ -4,43 +4,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 from typing import Optional, Callable
 
-
-class UIFactory:
-    """Reusable factory for building common UI elements with consistent styling."""
-
-    @staticmethod
-    def create_label(text: str = "", align: Qt.Alignment = Qt.AlignCenter) -> QLabel:
-        """
-        Creates a styled QLabel with specified text and alignment.
-
-        Args:
-            text: The label text content
-            align: Text alignment (default: Qt.AlignCenter)
-
-        Returns:
-            Configured QLabel instance
-        """
-        label = QLabel(text)
-        label.setAlignment(align)
-        return label
-
-    @staticmethod
-    def create_button(text: str, on_click: Optional[Callable] = None) -> QPushButton:
-        """
-        Creates a styled QPushButton with consistent sizing.
-
-        Args:
-            text: Button text label
-            on_click: Optional callback function for click events
-
-        Returns:
-            Configured QPushButton instance
-        """
-        btn = QPushButton(text)
-        if on_click:
-            btn.clicked.connect(on_click)
-        btn.setMinimumWidth(120)
-        return btn
+from gui.ui.ui_factory import UIFactory
 
 
 class BaseStage(QWidget):

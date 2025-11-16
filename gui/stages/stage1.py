@@ -11,6 +11,11 @@ class Stage1(BaseStage):
         next_btn = UIFactory.create_button("Next → Stage 2", self.next_stage.emit)
         theme_btn = UIFactory.create_button(
             "Theme",
-            lambda : ThemeManager.apply_theme_to_widget(next_btn, Resources.get_qss("button_theme_1.qss")))
+            lambda : ThemeManager.apply_theme_to_widget(next_btn, Resources.get_in_qss("button_theme_1.qss")))
+        file_entry = UIFactory.create_file_entry("")
+        ThemeManager.apply_theme_to_widget(file_entry,Resources.get_in_qss("default_file_entry_style.qss"))
+
+
+        self.main_layout.addWidget(file_entry)
         self.main_layout.addWidget(next_btn)
         self.main_layout.addWidget(theme_btn)

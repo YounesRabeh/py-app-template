@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 
+from gui.ui.elements.file_entry import FileEntry
+
 
 class UIFactory:
     """
@@ -158,3 +160,7 @@ class UIFactory:
             ... )
         """
         pass
+
+    @staticmethod
+    def create_file_entry(file_path, on_edit=None, on_delete=None, parent=None):
+        return FileEntry(file_path, on_edit, on_delete, parent)
