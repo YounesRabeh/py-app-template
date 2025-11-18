@@ -13,7 +13,7 @@ class Stage1(BaseStage):
             "Theme",
             lambda : ThemeManager.toggle_theme())
         file_entry = UIFactory.create_file_entry("")
-        ThemeManager.apply_theme_to_widget(file_entry,Resources.get_in_qss("default_file_entry_style.qss"))
+        ThemeManager.apply_theme_to_widget(file_entry,Resources.get_in_qss("file_entry/default.qss"))
 
 
         self.main_layout.addWidget(file_entry)

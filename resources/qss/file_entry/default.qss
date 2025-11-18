@@ -27,6 +27,12 @@ FileEntry QLabel {
     font-size: 14px;
 }
 
+FileEntry QLabel#fileNameLabel {
+    font-size: 17px;   /* bigger name */
+    font-weight: 400;
+}
+
+
 /* File size label */
 FileEntry QLabel#sizeLabel {
     font-size: 11px;
