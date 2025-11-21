@@ -1,28 +1,53 @@
 from pathlib import Path
 from typing import Any
-from core.enums.log_level import LogLevel
+
 from core.enums.app_themes import AppTheme
+from core.enums.log_level import LogLevel
 
 
 class ConfigValidator:
     """
-    Validation utilities for configuration values
-    Provides static methods to validate and convert configuration values
+    Validation and type-conversion utilities for configuration values.
+
+    This class centralizes all input validation logic used when merging TOML and
+    environment variables into the main application configuration. It ensures
+    that values are properly typed and consistent before being injected into
+    the final configuration dictionary.
+
+    The validator supports:
+    - Positive integer validation
+    - Boolean parsing (from multiple string formats)
+    - String fallback
+    - Parsing enums such as LogLevel and AppTheme
+    - File and directory path validation (auto-creation supported)
+
+    All methods raise ValueError on invalid input, allowing callers to safely
+    fall back to defaults or handle errors gracefully.
     """
 
     @staticmethod
     def ensure_positive_int(value: Any, default: int, field_name: str = "value") -> int:
         """
-        Ensure value is a positive integer.
+        Ensure that a configuration value represents a positive integer.
 
-        :param
-        :param value: The value to validate and convert
-        :param default: Default value to use if validation fails
-        :param field_name: Name of the field for error messages
+        Parameters
+        ----------
+        value : Any
+            The raw value to validate (typically from TOML or .env).
+        default : int
+            Unused here, but kept for API symmetry with other validators.
+        field_name : str, optional
+            Name of the configuration field, included in error messages.
 
-        :return: Positive integer value
+        Returns
+        -------
+        int
+            Validated positive integer.
 
-        :raises ValueError: If value cannot be converted to positive integer
+        Raises
+        ------
+        ValueError
+            If the value cannot be converted to a positive integer.
         """
         try:
             int_value = int(value)
@@ -36,14 +61,32 @@ class ConfigValidator:
     @staticmethod
     def ensure_boolean(value: Any, default: bool, field_name: str = "value") -> bool:
         """
-        Ensure value is a boolean.
-        :param value: The value to validate and convert
-        :param default: Default value to use if validation fails
-        :param field_name: Name of the field for error messages
+        Ensure that a configuration value represents a boolean.
 
-        :return: Boolean value
+        Accepted truthy values:
+            - "true", "yes", "1", "on"
 
-        :raises ValueError: If value cannot be converted to boolean
+        Accepted falsy values:
+            - "false", "no", "0", "off"
+
+        Parameters
+        ----------
+        value : Any
+            The input value to evaluate.
+        default : bool
+            Unused here; present for API consistency.
+        field_name : str, optional
+            Name of the field for error-reporting.
+
+        Returns
+        -------
+        bool
+            The parsed boolean value.
+
+        Raises
+        ------
+        ValueError
+            If the value cannot be interpreted as a boolean.
         """
         if isinstance(value, bool):
             return value
@@ -57,12 +100,21 @@ class ConfigValidator:
     @staticmethod
     def ensure_string(value: Any, default: str, field_name: str = "value") -> str:
         """
-        Ensure value is a string.
-        :param value: The value to validate and convert
-        :param default: Default value to use if validation fails
-        :param field_name: Name of the field for error messages
+        Ensure a configuration value is converted to a string.
 
-        :return: String value
+        Parameters
+        ----------
+        value : Any
+            The input value.
+        default : str
+            Default return value if the input is None.
+        field_name : str
+            Included for consistency and potential future use.
+
+        Returns
+        -------
+        str
+            The value converted to string, or the default if the input is None.
         """
         if value is None:
             return default
@@ -71,11 +123,22 @@ class ConfigValidator:
     @staticmethod
     def parse_log_level(level: str) -> LogLevel:
         """
-        Parse log level string to enum.
+        Parse a log level string and convert it into a LogLevel enum.
 
-        :param level: Log level string (e.g., 'DEBUG', 'INFO', 'WARNING', 'ERROR')
-        :returns LogLevel enum value
-        :raises ValueError: If level is not a valid LogLevel
+        Parameters
+        ----------
+        level : str
+            Raw log level string (case-insensitive).
+
+        Returns
+        -------
+        LogLevel
+            Matching enum instance.
+
+        Raises
+        ------
+        ValueError
+            If the string does not correspond to any LogLevel.
         """
         try:
             return LogLevel(level.upper())
@@ -85,11 +148,22 @@ class ConfigValidator:
     @staticmethod
     def parse_theme_mode(mode: str) -> AppTheme:
         """
-        Parse theme mode string to enum.
+        Parse a theme mode string and convert it into an AppTheme enum.
 
-        :param mode: Theme mode string (e.g., 'DARK', 'LIGHT', 'AUTO')
-        :returns: AppTheme enum value
-        :raises ValueError: If mode is not a valid AppTheme
+        Parameters
+        ----------
+        mode : str
+            Raw theme mode string (case-insensitive).
+
+        Returns
+        -------
+        AppTheme
+            Matching enum instance.
+
+        Raises
+        ------
+        ValueError
+            If the string does not match any available AppTheme.
         """
         try:
             return AppTheme(mode.upper())
@@ -99,12 +173,24 @@ class ConfigValidator:
     @staticmethod
     def validate_file_path(path: str, must_exist: bool = False) -> str:
         """
-        Validate file path.
+        Validate that a file path is syntactically correct and optionally exists.
 
-        :param path: File path to validate
-        :param must_exist: If True, creates directory if it doesn't exist
-        :return: The Validated file path as string
-        :raises ValueError: If path is invalid or file doesn't exist when required
+        Parameters
+        ----------
+        path : str
+            The filesystem path to validate.
+        must_exist : bool, optional
+            Whether to require that the file already exists.
+
+        Returns
+        -------
+        str
+            The absolute, normalized file path.
+
+        Raises
+        ------
+        ValueError
+            If the file must exist but does not.
         """
         path_obj = Path(path)
         if must_exist and not path_obj.exists():
@@ -114,10 +200,24 @@ class ConfigValidator:
     @staticmethod
     def validate_directory_path(path: str, create_if_missing: bool = False) -> str:
         """
-        Validate directory path.
-        :param path: Directory path to validate
-        :param create_if_missing: If True, creates directory if it doesn't exist
-        :return: The Validated directory path as string, creating it if necessary
+        Validate or create a directory path.
+
+        Parameters
+        ----------
+        path : str
+            The directory path to validate.
+        create_if_missing : bool, optional
+            If True, missing directories will be created recursively.
+
+        Returns
+        -------
+        str
+            The absolute, normalized directory path.
+
+        Raises
+        ------
+        ValueError
+            If the path is invalid and cannot be created.
         """
         path_obj = Path(path)
         if create_if_missing and not path_obj.exists():

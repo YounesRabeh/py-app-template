@@ -1,3 +1,19 @@
+"""
+EnvironmentSetup Module
+=======================
+
+This module provides unified configuration loading for Python applications.
+It automatically loads and merges values from:
+
+- `config.toml` (always)
+- `.env` (only when running in development mode)
+- Environment variables that override TOML values (dev mode)
+- Automatic type casting & validation through `ConfigValidator`
+
+It is compatible both with normal development execution and PyInstaller bundles.
+The module also configures logging behavior based on loaded settings.
+"""
+
 import os
 import sys
 from pathlib import Path
@@ -17,28 +33,31 @@ from core.util.validator import ConfigValidator
 
 class EnvironmentSetup:
     """
-       Handles environment setup by loading configuration from both a TOML file and,
-       optionally, a .env file (in development mode). Also configures logging.
+    Handles environment configuration loading for both development and production modes.
 
-       **Features:**
+    This class loads `config.toml`, and optionally `.env`, merges their values,
+    performs type casting and validation, and configures logging based on the
+    resulting configuration.
 
-       - Determines project root (works in both PyInstaller bundle and dev mode)
-       - Loads and flattens TOML configuration
-       - Loads .env variables in dev mode
-       - Auto-casts configuration values using ConfigValidator
-       - Merges TOML and .env into a single flat dictionary
-       - Configures logging based on environment and persistence settings
+    Features
+    --------
+    - Detects PyInstaller environment (`_MEIPASS`)
+    - Loads and parses TOML configuration
+    - Optionally loads `.env` (dev mode only)
+    - Automatically casts types using `ConfigValidator`
+    - Resolves file/directory paths and creates directories if needed
+    - Configures logging using either `.env` or TOML settings
+    - Returns a flattened dictionary of all settings
 
-       """
+    Parameters
+    ----------
+    env_path : str, optional
+        Name or path of the `.env` file (default: ".env").
+    toml_path : str, optional
+        Name or path of the TOML config file (default: "config.toml").
+    """
 
     def __init__(self, env_path: str = ".env", toml_path: str = "config.toml"):
-        """
-        Initialize the environment setup.
-
-        Args:
-            env_path (str): Relative path to the .env file (default: ".env").
-            toml_path (str): Relative path to the config.toml file (default: "config.toml").
-        """
         self.validator = ConfigValidator()
 
         # Determine project root (works in both PyInstaller & dev)
@@ -49,7 +68,7 @@ class EnvironmentSetup:
         else:
             # Normal dev run
             self.project_root = Path.cwd().resolve()
-            self.is_dev = True # True is correct, but we disable dev mode for testing
+            self.is_dev = True  # True is correct, but we disable dev mode for testing
 
         self.toml_path = (self.project_root / toml_path).resolve()
         self.env_path = (self.project_root / env_path).resolve()
@@ -67,41 +86,73 @@ class EnvironmentSetup:
             Logger.warning(f".env not found at {self.env_path}, skipping...")
         else:
             # Not in dev mode → use TOML-based logging
-            if self.toml_data is not None:
-                persistence_logging = (
-                    self.toml_data.get("logging", {}).get("persistence_logging", False)
-                )
-                if persistence_logging:
-                    os.environ["PERSISTENCE_LOGGING"] = "True"
-                    app_name = self.toml_data.get("app", {}).get("name")
-                    os.environ["PERSISTENCE_LOGGING_TARGET_NAME"] = app_name
-            else:
-                os.environ["PERSISTENCE_LOGGING"] = "True"
-            Logger.configure_from_env(self.project_root)
+            self._configure_logging_from_toml()
 
-    def _load_toml(self) -> dict[str, Any] | None | Any:
+    def _configure_logging_from_toml(self):
         """
-        Load TOML configuration file.
+        Configure logging using TOML settings when not running in development mode.
 
-        Returns:
-            dict[str, Any] | None: Parsed TOML data if file exists, else None.
+        This method reads logging settings from the loaded TOML configuration.
+        If persistence logging is enabled, it injects environment variables that
+        the logging system depends on.
+
+        Behavior:
+        - If TOML exists and defines `[logging].persistence_logging = true`,
+          then PERSISTENCE_LOGGING is enabled.
+        - The application name is passed via PERSISTENCE_LOGGING_TARGET_NAME.
+        """
+        if self.toml_data is not None:
+            persistence_logging = (
+                self.toml_data.get("logging", {}).get("persistence_logging", False)
+            )
+            if persistence_logging:
+                os.environ["PERSISTENCE_LOGGING"] = "True"
+                app_name = self.toml_data.get("app", {}).get("name")
+                os.environ["PERSISTENCE_LOGGING_TARGET_NAME"] = app_name
+        else:
+            # Default: enable persistence logging
+            os.environ["PERSISTENCE_LOGGING"] = "True"
+
+        Logger.configure_from_env(self.project_root)
+
+    def _load_toml(self) -> dict[str, Any] | None:
+        """
+        Load and parse the TOML configuration file.
+
+        Returns
+        -------
+        dict[str, Any] | None
+            Parsed TOML data, or None if the file does not exist.
         """
         if not self.toml_path.exists():
             return None
         with open(self.toml_path, "rb") as f:
             return tomllib.load(f)
 
-    def _auto_cast(self, key: str, value: str):
+    def _auto_cast(self, key: str, value: str) -> Any:
         """
-        Automatically cast and validate environment variable values
-        using ConfigValidator.
+        Automatically infer and cast environment variable values to the correct types.
 
-        Args:
-            key (str): Environment variable key.
-            value (str): Environment variable value.
+        The method tries the following cast rules:
+        - Special keys:
+            * LOG_LEVEL → parsed using validator.parse_log_level
+            * THEME_MODE → parsed using validator.parse_theme_mode
+        - Boolean (true/false strings)
+        - Positive integer
+        - File or directory path (absolute, validated, directories created if needed)
+        - Default: return as string
 
-        Returns:
-            Any: Auto-cast and validated value.
+        Parameters
+        ----------
+        key : str
+            Name of the configuration key.
+        value : str
+            Raw string value to cast.
+
+        Returns
+        -------
+        Any
+            The Casted Python object.
         """
         v = self.validator
 
@@ -110,28 +161,42 @@ class EnvironmentSetup:
         if key == "THEME_MODE":
             return v.parse_theme_mode(value)
 
+        # Try boolean
         try:
             return v.ensure_boolean(value, False, key)
         except ValueError:
             pass
+
+        # Try positive integer
         try:
             return v.ensure_positive_int(value, 0, key)
         except ValueError:
             pass
 
+        # Path auto-handling
         if any(x in key for x in ("PATH", "DIR", "FILE")):
             p = Path(value).expanduser().resolve()
             if p.suffix:
                 return v.validate_file_path(str(p))
             return v.validate_directory_path(str(p), create_if_missing=True)
 
+        # Default: string
         return v.ensure_string(value, "", key)
 
     def load(self) -> dict:
         """
-        Merge TOML and optionally .env configuration into a flat dictionary.
+        Load, merge, flatten, and return the final application configuration.
 
-        :returns: Flat configuration dictionary with auto-cast values as a dict
+        The result includes:
+        - Flattened TOML values (e.g. `[app].name` → `APP_NAME`)
+        - .env overrides (dev mode only)
+        - Auto-casted types for `.env` values
+        - A meta-flag `IS_DEV_MODE`
+
+        Returns
+        -------
+        dict
+            A flat configuration dictionary with merged values.
         """
         config = {}
 
@@ -144,14 +209,14 @@ class EnvironmentSetup:
             for key, value in values.items():
                 config[f"{section.upper()}_{key.upper()}"] = value
 
-        # Merge .env values (only in dev mode)
+        # Merge `.env` overrides
         if self.env_loaded:
             for key, value in os.environ.items():
                 if key.isupper():
                     try:
                         config[key] = self._auto_cast(key, value)
                     except Exception:
-                        config[key] = value
+                        config[key] = value  # Fallback
 
         # Add meta flag
         config["IS_DEV_MODE"] = self.is_dev
